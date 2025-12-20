@@ -42,9 +42,9 @@ public class LocationController {
     Location updateLocation(@RequestBody Location updatedLocation, @PathVariable UUID id) {
         return locationRepository.findById(id)
                 .map(location -> {
-                    location.setHeight(updatedLocation.getHeight());
-                    location.setColumn(updatedLocation.getColumn());
-                    location.setSideNote(updatedLocation.getSideNote());
+                    location.setXPosition(updatedLocation.getXPosition());
+                    location.setYPosition(updatedLocation.getYPosition());
+                    location.setComment(updatedLocation.getComment());
                     return locationRepository.save(location);
                 })
                 .orElseThrow(() -> new LocationNotFoundException(id));

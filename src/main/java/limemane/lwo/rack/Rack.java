@@ -1,8 +1,6 @@
 package limemane.lwo.rack;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 import java.util.Objects;
 import java.util.UUID;

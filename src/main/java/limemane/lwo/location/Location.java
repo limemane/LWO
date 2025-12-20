@@ -11,17 +11,17 @@ public class Location {
 
     private @Id @GeneratedValue UUID id;
     private @ManyToOne @JoinColumn(name = "rack_id") Rack rack;
-    private int height;
-    private int column;
-    private String sideNote;
+    private int xPosition;
+    private int yPosition;
+    private String comment;
 
     public Location() {}
 
-    public Location(Rack rack, int height, int column, String sideNote) {
+    public Location(Rack rack, int xPosition, int yPosition, String comment) {
         this.rack = rack;
-        this.height = height;
-        this.column = column;
-        this.sideNote = sideNote;
+        this.xPosition = xPosition;
+        this.yPosition = yPosition;
+        this.comment = comment;
     }
 
     public UUID getId() {
@@ -40,28 +40,28 @@ public class Location {
         this.rack = rack;
     }
 
-    public int getHeight() {
-        return height;
+    public int getXPosition() {
+        return xPosition;
     }
 
-    public void setHeight(int height) {
-        this.height = height;
+    public void setXPosition(int xPosition) {
+        this.xPosition = xPosition;
     }
 
-    public int getColumn() {
-        return column;
+    public int getYPosition() {
+        return yPosition;
     }
 
-    public void setColumn(int column) {
-        this.column = column;
+    public void setYPosition(int yPosition) {
+        this.yPosition = yPosition;
     }
 
-    public String getSideNote() {
-        return sideNote;
+    public String getComment() {
+        return comment;
     }
 
-    public void setSideNote(String sideNote) {
-        this.sideNote = sideNote;
+    public void setComment(String comment) {
+        this.comment = comment;
     }
 
     @Override
@@ -81,9 +81,9 @@ public class Location {
         return "Location{" +
                 "id=" + id +
                 ", rack=" + rack +
-                ", height=" + height +
-                ", column=" + column +
-                ", sideNote='" + sideNote + '\'' +
+                ", xPosition=" + xPosition +
+                ", yPosition=" + yPosition +
+                ", comment='" + comment + '\'' +
                 '}';
     }
 }
