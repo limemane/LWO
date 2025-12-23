@@ -14,9 +14,6 @@ public class LocationController {
         this.locationRepository = locationRepository;
     }
 
-    /***
-     * GET
-     ***/
     @GetMapping(baseUrl)
     List<Location> getAll() {
         return locationRepository.findAll();
@@ -27,17 +24,11 @@ public class LocationController {
         return locationRepository.findById(id).orElseThrow(() -> new LocationNotFoundException(id));
     }
 
-    /***
-     * POST
-     ***/
     @PostMapping(baseUrl)
     Location createLocation(@RequestBody Location createdLocation) {
         return locationRepository.save(createdLocation);
     }
 
-    /***
-     * PUT
-     ***/
     @PutMapping(baseUrl+"/{id}")
     Location updateLocation(@RequestBody Location updatedLocation, @PathVariable UUID id) {
         return locationRepository.findById(id)
@@ -50,9 +41,6 @@ public class LocationController {
                 .orElseThrow(() -> new LocationNotFoundException(id));
     }
 
-    /***
-     * DELETE
-     ***/
     @DeleteMapping(baseUrl+"/{id}")
     void deleteLocation(@PathVariable UUID id) {
         locationRepository.deleteById(id);

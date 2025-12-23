@@ -1,6 +1,7 @@
 package limemane.lwo.rack;
 
 import jakarta.persistence.*;
+import limemane.lwo.warehouse.Warehouse;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -10,12 +11,14 @@ public class Rack {
     private @Id @GeneratedValue UUID id;
     private String name;
     private Integer queuePosition;
+    private @ManyToOne @JoinColumn(name = "warehouse_id") Warehouse warehouse;
 
     public Rack() {}
 
-    public Rack(String name, Integer queuePosition) {
+    public Rack(String name, Integer queuePosition, Warehouse warehouse) {
         this.name = name;
         this.queuePosition = queuePosition;
+        this.warehouse = warehouse;
     }
 
     public UUID getId() {
@@ -42,6 +45,14 @@ public class Rack {
         this.queuePosition = queuePosition;
     }
 
+    public Warehouse getWarehouse() {
+        return warehouse;
+    }
+
+    public void setWarehouse(Warehouse warehouse) {
+        this.warehouse = warehouse;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
@@ -60,6 +71,8 @@ public class Rack {
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", queuePosition=" + queuePosition +
+                ", warehouse=" + warehouse +
                 '}';
     }
+
 }
