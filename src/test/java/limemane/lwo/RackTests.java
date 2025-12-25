@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,8 +23,7 @@ import tools.jackson.databind.SerializationFeature;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
@@ -75,18 +75,51 @@ public class RackTests {
 
         // Rack serialization
         ObjectMapper mapper = new ObjectMapper();
-        ObjectWriter ow = mapper.writer().withDefaultPrettyPrinter();
-        String newRackJson = ow.writeValueAsString(rackC);
 
         long countBefore = rackRepository.count();
 
         mockMvc.perform(post("/racks")
-                        .content((newRackJson)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content((mapper.writeValueAsString(rackC))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("C"));
-        // TODO : not passing because generated JSON seems fucked up
 
         long countAfter = rackRepository.count();
         assertEquals(countBefore + 1, countAfter);
     }
+
+    @Test
+    @Transactional
+    void testUpdate() throws Exception {
+        // Creating a new rack to get its ID
+        Rack rackC = rackRepository.save(new Rack("C",3,warehouseRepository.findAll().getFirst()));
+
+        // Changing entity values
+        rackC.setName("D");
+        rackC.setQueuePosition(4);
+
+        // Updated rack serialization
+        ObjectMapper mapper = new ObjectMapper();
+
+        mockMvc.perform(put("/racks/" +  rackC.getId().toString())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content((mapper.writeValueAsString(rackC))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("D"))
+                .andExpect(jsonPath("$.queuePosition").value(4));
+    }
+
+    @Test
+    @Transactional
+    void testDelete() throws Exception {
+        // Creating a new rack to get its ID
+        Rack rackC = rackRepository.save(new Rack("C",3,warehouseRepository.findAll().getFirst()));
+
+        long countBefore = rackRepository.count();
+
+        mockMvc.perform(delete("/racks/" +  rackC.getId().toString()))
+                .andExpect(status().isOk());
+
+        long countAfter = rackRepository.count();
+        assertEquals(countBefore - 1, countAfter);    }
 }
