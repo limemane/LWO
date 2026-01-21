@@ -71,14 +71,12 @@ public class RackTests {
 
         // Rack serialization
         ObjectMapper mapper = new ObjectMapper();
-        ObjectWriter ow = mapper.writer().withDefaultPrettyPrinter();
-        String newRackJson = ow.writeValueAsString(rackC);
 
         long countBefore = rackRepository.count();
 
         mockMvc.perform(post("/racks")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content((newRackJson)))
+                        .content((mapper.writeValueAsString(rackC))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("C"));
 
