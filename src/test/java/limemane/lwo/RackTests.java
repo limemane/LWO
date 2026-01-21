@@ -1,9 +1,6 @@
 package limemane.lwo;
 
-import limemane.lwo.location.Location;
-import limemane.lwo.location.LocationRepository;
 import limemane.lwo.rack.Rack;
-import limemane.lwo.rack.RackController;
 import limemane.lwo.rack.RackRepository;
 import limemane.lwo.warehouse.Warehouse;
 import limemane.lwo.warehouse.WarehouseRepository;
@@ -12,18 +9,17 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectWriter;
-import tools.jackson.databind.SerializationFeature;
 
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
@@ -81,12 +77,57 @@ public class RackTests {
         long countBefore = rackRepository.count();
 
         mockMvc.perform(post("/racks")
+                        .contentType(MediaType.APPLICATION_JSON)
                         .content((newRackJson)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("C"));
-        // TODO : not passing because generated JSON seems fucked up
 
         long countAfter = rackRepository.count();
         assertEquals(countBefore + 1, countAfter);
+    }
+
+    @Test
+    @Transactional
+    void testUpdate() throws Exception {
+        // Get rack B and change entity name to C
+        Rack rackBtoC = rackRepository.findByName("B");
+        rackBtoC.setName("C");
+
+        // Rack serialization
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectWriter ow = mapper.writer().withDefaultPrettyPrinter();
+        String updateRackJson = ow.writeValueAsString(rackBtoC);
+
+        UUID idBefore = rackBtoC.getId();
+        long countBefore = rackRepository.count();
+
+        mockMvc.perform(put("/racks/" + rackBtoC.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content((updateRackJson)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("C"));
+
+        long countAfter = rackRepository.count();
+        assertEquals(countBefore, countAfter);
+        // also checking renamed rack still has de same UUID
+        assertEquals(rackRepository.findByName("C").getId(),idBefore);
+    }
+
+    @Test
+    @Transactional
+    void testDelete() throws Exception {
+        // Find rack A to delete
+        Rack rackA = rackRepository.findByName("A");
+
+        long countBefore = rackRepository.count();
+
+        mockMvc.perform(delete("/racks/" + rackA.getId()))
+                .andExpect(status().isOk());
+
+        long countAfter = rackRepository.count();
+        assertEquals(countBefore - 1, countAfter);
+
+        // Remaining rack should be rack B
+        assertNotNull(rackRepository.findByName("B"));
     }
 }
