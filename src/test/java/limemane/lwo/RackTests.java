@@ -13,7 +13,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.ObjectWriter;
 
 import java.util.UUID;
 
@@ -93,15 +92,13 @@ public class RackTests {
 
         // Rack serialization
         ObjectMapper mapper = new ObjectMapper();
-        ObjectWriter ow = mapper.writer().withDefaultPrettyPrinter();
-        String updateRackJson = ow.writeValueAsString(rackBtoC);
 
         UUID idBefore = rackBtoC.getId();
         long countBefore = rackRepository.count();
 
         mockMvc.perform(put("/racks/" + rackBtoC.getId())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content((updateRackJson)))
+                        .content((mapper.writeValueAsString(rackBtoC))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("C"));
 
